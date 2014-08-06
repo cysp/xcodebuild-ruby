@@ -2,27 +2,27 @@
 
 require 'open3'
 
-module Xctool
-  def self.exec(xctool_args, command, arguments = [])
-    system('xctool', *(xctool_args + [command, *arguments]))
+module Xcodebuild
+  def self.exec(xcodebuild_args, command, arguments = [])
+    system('xcodebuild', *(xcodebuild_args + [command, *arguments]))
   end
 
-  def self.platform_object_files_path(xctool_args, target_name = nil)
-    bs = build_settings(xctool_args, target_name)
+  def self.platform_object_files_path(xcodebuild_args, target_name = nil)
+    bs = build_settings(xcodebuild_args, target_name)
     variant = bs['CURRENT_VARIANT']
     dir = bs["OBJECT_FILE_DIR_#{variant}"] || bs['OBJECT_FILE_DIR']
     return nil if dir.nil?
     dir << '/' + bs['PLATFORM_PREFERRED_ARCH'].to_s
   end
 
-  def self.build_settings(xctool_args, target = nil)
+  def self.build_settings(xcodebuild_args, target = nil)
     if target.nil?
       accum = XcodeFirstBuildableBuildSettingsAccumulator.new
     else
       accum = XcodeSpecificTargetBuildSettingsAccumulator.new target
     end
 
-    Open3.popen3('xctool', *(xctool_args + [ '-showBuildSettings' ])) do |stdin, stdout, stderr|
+    Open3.popen3('xcodebuild', *(xcodebuild_args + [ '-showBuildSettings' ])) do |stdin, stdout, stderr|
       while stdout.gets
         accum.add_line $_.chomp
       end

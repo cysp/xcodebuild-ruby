@@ -1,2 +1,2 @@
-xctool-ruby
+xcodebuild-ruby
 ================
